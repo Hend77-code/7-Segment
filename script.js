@@ -42,13 +42,18 @@ const renderNumber = (numStr) => {
 };
 
 const handleDisplay = () => {
-  const value = numberInput.value.trim();
+  let value = numberInput.value.trim();
 
-  if (value === '') {
-    errorMessage.textContent = 'Input cannot be empty.';
+  // رقم سالب
+  if (value.startsWith('-')) {
+    errorMessage.textContent = 'Negative numbers are not allowed.';
     return;
   }
 
+  // إزالة الأصفار من البداية
+  value = value.replace(/^0+/, '') || '0';
+
+  // تحقق من الصحة
   if (!isValidInput(value)) {
     errorMessage.textContent = 'Only numbers between 0 and 999 are allowed.';
     return;
@@ -58,6 +63,21 @@ const handleDisplay = () => {
   renderNumber(value);
   localStorage.setItem('savedNumber', value);
 };
+
+// منع الأحرف - فقط أرقام
+numberInput.addEventListener('keydown', (e) => {
+  const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete','-'];
+  if (!/\d/.test(e.key) && !allowedKeys.includes(e.key)) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'error',
+      title: 'Invalid Entry',
+      text: 'Only numbers are allowed from the keyboard!',
+      confirmButtonText: 'Done'
+    });
+  }
+});
+
 
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('savedNumber');
